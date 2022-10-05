@@ -14,6 +14,13 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+/mvnw
+/mvnw.cmd
+/suppressions.xml
+/HELP.md
+/checkstyle.xml
+/lombok.config
+
 ### STS ###
 .apt_generated
 .classpath

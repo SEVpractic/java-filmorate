@@ -10,13 +10,14 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class User {
     private Integer id;
-    @Email
     @NotNull
+    @Email
     private String email;
     @NotBlank
     @Pattern(regexp = "[^ ]+$")
     private String login;
     private String name;
+    @NotNull
     @PastOrPresent
     private LocalDate birthday;
 }

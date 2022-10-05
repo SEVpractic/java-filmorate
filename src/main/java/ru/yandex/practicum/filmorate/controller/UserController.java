@@ -9,12 +9,13 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
-    private final HashMap<Integer, User> users = new HashMap<>();
+    private final Map<Integer, User> users = new HashMap<>();
     private int id;
 
     public UserController() {
@@ -23,20 +24,14 @@ public class UserController {
 
     @GetMapping
     public List<User> getUsers() {
-        log.info("Отаправлен перечень пользователей {}", users);
+        log.info("Отправлен перечень пользователей {}", users);
         return new ArrayList<>(users.values());
     }
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
-        if (users.containsKey(user.getId())) {
-            throw new ValidationException("Пользователь " + user + " уже существует");
-        } else if (user.getName() == null || user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-        }
-
-        updateID();
-        user.setId(id);
+        fillEmptyUserName(user);
+        updateUserID(user);
         users.put(user.getId(), user);
         log.info("Добавлен пользователь {}", user);
 
@@ -45,19 +40,29 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
-        if (!users.containsKey(user.getId())) {
+        if (isNotExist(user)) {
             throw new ValidationException("Невозможно обновить. Пользователь " + user + " не существует");
-        } else if (user.getName() == null || user.getName().isEmpty()) {
-            user.setName(user.getLogin());
         }
 
+        fillEmptyUserName(user);
         users.put(user.getId(), user);
         log.info("Обновлен пользователь {}", user);
 
         return user;
     }
 
-    private void updateID() {
+    private void fillEmptyUserName(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+    }
+
+    private boolean isNotExist(User user) {
+        return !users.containsKey(user.getId());
+    }
+
+    private void updateUserID(User user) {
         id++;
+        user.setId(id);
     }
 }

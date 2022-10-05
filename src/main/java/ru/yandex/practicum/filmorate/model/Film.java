@@ -22,6 +22,7 @@ public class Film {
     private String name;
     @Size(max = 200)
     private String description;
+    @NotNull
     @ReleaseDateValidation
     private LocalDate releaseDate;
     @DurationMin(minutes = 1)

@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
@@ -22,7 +23,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class FilmorateApplicationTests {
 	static Validator validator;
+	@Autowired
 	UserController userController;
+	@Autowired
 	FilmController filmController;
 
 	@BeforeAll
@@ -75,9 +78,7 @@ class FilmorateApplicationTests {
 	}
 
 	@Test
-	void user_creation_correct() {
-		userController = new UserController();
-
+	void user_controller_correct() {
 		User user = new User(null, "aaa@mail.com", "login", "Mortie", LocalDate.of(1990, 10, 03));
 		User user1 = new User(null, "bbb@mail.com", "login", null, LocalDate.of(1990, 10, 03));
 		userController.createUser(user);
@@ -92,29 +93,18 @@ class FilmorateApplicationTests {
 
 		assertEquals(expectedUsers, userController.getUsers(), "не корректно создается пользователь");
 		assertEquals(expectedUsers.get(1), userController.getUsers().get(1), "пустое имя пользователя не меняется на логин");
-		assertThrows(ValidationException.class, () -> userController.createUser(user1), "имеющиеся пользователи дублируются");
-	}
 
-	@Test
-	void user_update_correct() {
-		userController = new UserController();
-
-		User user = new User(null, "aaa@mail.com", "login", "Mortie", LocalDate.of(1990, 10, 03));
-		userController.createUser(user);
-
-		User user1 = new User(1, "aaa@mail.com", "login1", "Mortie", LocalDate.of(1990, 10, 03));
-		userController.updateUser(user1);
+		User user2 = new User(1, "aaa@mail.com", "login1", "Mortie", LocalDate.of(1990, 10, 03));
+		userController.updateUser(user2);
 
 		assertEquals("login1", userController.getUsers().get(0).getLogin(), "обновление проходит не корректно");
 
-		User user2 = new User(1000, "aaa@mail.com", "login", "Mortie", LocalDate.of(1990, 10, 03));
-		assertThrows(ValidationException.class, () -> userController.updateUser(user2), "обновляется несуществующий юзер");
+		User user3 = new User(1000, "aaa@mail.com", "login", "Mortie", LocalDate.of(1990, 10, 03));
+		assertThrows(ValidationException.class, () -> userController.updateUser(user3), "обновляется несуществующий юзер");
 	}
 
 	@Test
-	void film_creation_correct() {
-		filmController = new FilmController();
-
+	void film_controller_correct() {
 		Film film = new Film(null, "AAA", "description", LocalDate.of(1990, 10, 03), Duration.ofMinutes(120));
 		Film film1 = new Film(null, "BBB", "description", LocalDate.of(1990, 10, 03), Duration.ofMinutes(120));
 		filmController.createFilm(film);
@@ -127,23 +117,12 @@ class FilmorateApplicationTests {
 
 		assertEquals(expectedFilms, filmController.getFilms(), "не корректно создается фильм");
 
-		Film film2 = new Film(null, "CCC", "description", LocalDate.of(1000, 10, 03), Duration.ofMinutes(120));
-		assertEquals(expectedFilms, filmController.getFilms(), "не отсеивается по дате релиза");
-	}
-
-	@Test
-	void film_update_correct() {
-		filmController = new FilmController();
-
-		Film film = new Film(null, "AAA", "description", LocalDate.of(1990, 10, 03), Duration.ofMinutes(120));
-		filmController.createFilm(film);
-
-		Film film1 = new Film(1, "AAA", "description1", LocalDate.of(1990, 10, 03), Duration.ofMinutes(120));
-		filmController.updateFilm(film1);
+		Film film2 = new Film(1, "AAA", "description1", LocalDate.of(1990, 10, 03), Duration.ofMinutes(120));
+		filmController.updateFilm(film2);
 
 		assertEquals("description1", filmController.getFilms().get(0).getDescription(), "обновление проходит не корректно");
 
-		Film film2 = new Film(1000, "AAA", "description1", LocalDate.of(1990, 10, 03), Duration.ofMinutes(120));
-		assertThrows(ValidationException.class, ()-> filmController.updateFilm(film2), "обновляется несуществующий фильм");
+		Film film3 = new Film(1000, "AAA", "description1", LocalDate.of(1990, 10, 03), Duration.ofMinutes(120));
+		assertThrows(ValidationException.class, ()-> filmController.updateFilm(film3), "обновляется несуществующий фильм");
 	}
 }
