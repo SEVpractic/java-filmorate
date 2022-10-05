@@ -13,11 +13,6 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-checkstyle.xml
-HELP.md
-mvnw
-mvnw.cmd
-suppressions.xml
 
 ### STS ###
 .apt_generated
@@ -48,4 +43,9 @@ build/
 .vscode/
 
 *.db
-db/*
+db/*!/checkstyle.xml
+!/HELP.md
+!/mvnw
+!/mvnw.cmd
+!/README.md
+!/suppressions.xml
