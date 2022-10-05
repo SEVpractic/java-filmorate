@@ -13,13 +13,11 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-
-/mvnw
-/mvnw.cmd
-/suppressions.xml
-/HELP.md
-/checkstyle.xml
-/lombok.config
+checkstyle.xml
+HELP.md
+mvnw
+mvnw.cmd
+suppressions.xml
 
 ### STS ###
 .apt_generated
