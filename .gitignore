@@ -43,4 +43,19 @@ build/
 .vscode/
 
 *.db
-db/*
+db/*!/checkstyle.xml
+### Example user template template
+### Example user template
+
+# IntelliJ project files
+.idea
+*.iml
+out
+gen
+
+checkstyle.xml
+HELP.md
+mvnw
+mvnw.cmd
+README.md
+suppressions.xml
