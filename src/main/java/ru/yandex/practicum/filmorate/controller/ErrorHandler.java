@@ -11,18 +11,10 @@ import ru.yandex.practicum.filmorate.model.ErrorResponse;
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleUserNotExistException(final UserNotExistException e) {
-        log.error("UserNotExistException: {}", e.getMessage());
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handeFilmNotExistException(final FilmNotExistException e) {
-        log.error("FilmNotExistException: {}", e.getMessage());
+    public ErrorResponse handleEntityNotExistException(final EntityNotExistException e) {
+        log.error("EntityNotExistException: {}", e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
 
@@ -35,15 +27,8 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleFriendshipException(final FriendshipException e) {
-        log.error("FriendshipException: {}", e.getMessage());
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleLikeException(final LikeException e) {
-        log.error("LikeException: {}", e.getMessage());
+    public ErrorResponse handleOperationAlreadyCompletedException(final OperationAlreadyCompletedException e) {
+        log.error("OperationAlreadyCompletedException: {}", e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
 

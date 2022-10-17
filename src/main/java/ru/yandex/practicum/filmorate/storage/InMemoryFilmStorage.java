@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exceptions.FilmNotExistException;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public boolean isFilmExist(int filmID) {
         boolean isExist = films.containsKey(filmID);
         if (!isExist) {
-            throw new FilmNotExistException("Фильм c ID №" + filmID + " не существует");
+            throw new EntityNotExistException("Фильм c ID №" + filmID + " не существует");
         }
         return true;
     }

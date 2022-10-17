@@ -36,7 +36,7 @@ public class Film {
         return likes.add(friendID);
     }
 
-    public boolean dellLike(int friendID) {
+    public boolean removeLike(int friendID) {
         return likes.remove(friendID);
     }
 }

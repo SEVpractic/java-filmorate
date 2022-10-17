@@ -6,10 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.exceptions.FilmNotExistException;
-import ru.yandex.practicum.filmorate.exceptions.FriendshipException;
-import ru.yandex.practicum.filmorate.exceptions.LikeException;
-import ru.yandex.practicum.filmorate.exceptions.UserNotExistException;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotExistException;
+import ru.yandex.practicum.filmorate.exceptions.OperationAlreadyCompletedException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -26,14 +24,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class FilmorateApplicationTests {
-	final LocalDate CORRECT_DATE = LocalDate.of(1990, 10, 3);
-	final LocalDate UN_CORRECT_DATE_OF_BIRTHDAY = LocalDate.of(3990, 12, 31);
-	final LocalDate UN_CORRECT_DATE_RELISE = LocalDate.of(1000, 12, 3);
-	final Duration CORRECT_DURATION = Duration.ofMinutes(120);
+	private static final LocalDate CORRECT_DATE = LocalDate.of(1990, 10, 3);
+	private static final LocalDate UN_CORRECT_DATE_OF_BIRTHDAY = LocalDate.of(3990, 12, 31);
+	private static final LocalDate UN_CORRECT_DATE_RELISE = LocalDate.of(1000, 12, 3);
+	private static final Duration CORRECT_DURATION = Duration.ofMinutes(120);
 
-	static Validator validator;
-	UserController userController;
-	FilmController filmController;
+	private static Validator validator;
+	private final UserController userController;
+	private final FilmController filmController;
 
 	@Autowired
 	public FilmorateApplicationTests(UserController userController,
@@ -129,31 +127,31 @@ class FilmorateApplicationTests {
 				"обновление проходит не корректно");
 
 		User user3 = new User(1000, "aaa@mail.com", "login", "Mortie", CORRECT_DATE);
-		assertThrows(UserNotExistException.class, () -> userController.updateUser(user3),
+		assertThrows(EntityNotExistException.class, () -> userController.updateUser(user3),
 				"обновляется несуществующий юзер");
 
 		User user4 = new User(3, "aaa@mail.com", "login", "Mortie", CORRECT_DATE);
 		userController.createUser(user4);
-		userController.createFriendship(1, 2);
+		userController.addAsFriend(1, 2);
 
-		assertEquals(List.of(), userController.getGenericFriendsList(1, 2),
+		assertEquals(List.of(), userController.getCommonFriendsList(1, 2),
 				"не верно формируется список общих друзей без общих друзей");
-		assertThrows(FriendshipException.class, () -> userController.createFriendship(1, 2),
+		assertThrows(OperationAlreadyCompletedException.class, () -> userController.addAsFriend(1, 2),
 				"не формируется исключение при добавлении в друзья уже друзей");
 
-		userController.createFriendship(2, 3);
+		userController.addAsFriend(2, 3);
 		assertEquals(Set.of(2), userController.getUserByID(1).getFriends(),
 				"не корректно добавляются друзья");
 		assertEquals(List.of(userController.getUserByID(1), userController.getUserByID(3)),
 				userController.getFriendsList(2), "не корректно выводится список друзей");
 		assertEquals(List.of(userController.getUserByID(2)),
-				userController.getGenericFriendsList(1, 3),
+				userController.getCommonFriendsList(1, 3),
 				"не корректно формируется список общих друзей");
 
-		userController.destroyFriendship(1, 2);
+		userController.removeFromFriends(1, 2);
 		assertEquals(Set.of(), userController.getUserByID(1).getFriends(),
 				"не корректно удаляются друзья");
-		assertThrows(FriendshipException.class, () -> userController.destroyFriendship(1, 2),
+		assertThrows(OperationAlreadyCompletedException.class, () -> userController.removeFromFriends(1, 2),
 				"не формируется исключение при удалении из друзей не друзей");
 	}
 
@@ -179,7 +177,7 @@ class FilmorateApplicationTests {
 				"обновление проходит не корректно");
 
 		Film film3 = new Film(1000, "AAA", "description1", CORRECT_DATE, CORRECT_DURATION);
-		assertThrows(FilmNotExistException.class, ()-> filmController.updateFilm(film3),
+		assertThrows(EntityNotExistException.class, ()-> filmController.updateFilm(film3),
 				"обновляется несуществующий фильм");
 
 		assertEquals(0, filmController.getFilmByID(1).getLikes().size(),
@@ -194,13 +192,13 @@ class FilmorateApplicationTests {
 
 		assertEquals(2, filmController.getFilmByID(1).getLikes().size(),
 				"не корректно формируется список лайков");
-		assertThrows(LikeException.class, () -> filmController.addLike(1, 1),
-				"не выбрасывается исключение при лайканье лайканных лайков");
+		assertThrows(OperationAlreadyCompletedException.class, () -> filmController.addLike(1, 1),
+				"не выбрасывается исключение при постановке уже стоящего лайка");
 
-		filmController.dellLike(1, 1);
+		filmController.removeLike(1, 1);
 
 		assertEquals(1, filmController.getFilmByID(1).getLikes().size());
-		assertThrows(LikeException.class, () -> filmController.dellLike(1, 1),
+		assertThrows(OperationAlreadyCompletedException.class, () -> filmController.removeLike(1, 1),
 				"не выбрасывается исключение при удалении не стоявшего лайка");
 	}
 }
