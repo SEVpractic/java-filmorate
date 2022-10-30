@@ -12,6 +12,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -28,4 +30,13 @@ public class Film {
     @DurationMin(minutes = 1)
     @JsonSerialize(using = DurationConverter.class)
     private Duration duration;
+    private final Set<Integer> likes = new HashSet<>();
+
+    public boolean addLike(int friendID) {
+        return likes.add(friendID);
+    }
+
+    public boolean removeLike(int friendID) {
+        return likes.remove(friendID);
+    }
 }
