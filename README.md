@@ -1,6 +1,6 @@
 # java-filmorate
 
-![ER-diagram](https://dbdiagram.io/d/635e50b75170fb6441c05e44)
+https://dbdiagram.io/d/635e50b75170fb6441c05e44
 
 SQL requests examples:
 
