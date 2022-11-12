@@ -65,7 +65,7 @@ public class GenresDbStorage implements GenreStorage {
     @Override
     public void createGenres(int filmId, List<Pair> genres) {
         Set<Pair> pairs = genres.stream().sorted(Comparator.comparingInt(Pair::getId)).collect(Collectors.toSet());
-        List<Pair> finalGenres = pairs.stream().toList();
+        List<Pair> finalGenres = pairs.stream().collect(Collectors.toList());
         removeGenres(filmId);
         String sqlQuery = "INSERT INTO genres_film (film_id, genre_id) VALUES (?, ?)";
         jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() {
