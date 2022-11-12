@@ -13,9 +13,7 @@ public interface UserStorage {
 
     User updateUser(User user);
 
-    User createUserID(User user);
+    List<User> getCommonFriends(int userID, int anotherUserID);
 
-    boolean isUserExist(int userID);
-
-    User fillEmptyUserName(User user);
+    List<User> getFriends(int userID);
 }

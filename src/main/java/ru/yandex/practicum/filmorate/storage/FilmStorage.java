@@ -13,7 +13,5 @@ public interface FilmStorage {
 
     Film updateFilm(Film film);
 
-    Film createFilmID(Film film);
-
-    boolean isFilmExist(int filmID);
+    List<Film> getPopularFilms(int count);
 }
