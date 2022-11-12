@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.EntityNotExistException;
+import ru.yandex.practicum.filmorate.exceptions.OperationAlreadyCompletedException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -26,7 +26,7 @@ public class FilmService {
     public void addLike(int filmID, int userID) {
         Like like = likeStorage.getLike(filmID, userID);
         if (like != null) {
-            throw new EntityNotExistException(
+            throw new OperationAlreadyCompletedException(
                     String.format(
                             "Невозможно поставить лайк, т.к. пользователь ID №%s уже поставил лайк фильму ID №%s",
                             userID, filmID)
@@ -39,13 +39,14 @@ public class FilmService {
     public void removeLike(int filmID, int userID) {
         Like like = likeStorage.getLike(filmID, userID);
         if (like == null) {
-            throw new EntityNotExistException(
+            throw new OperationAlreadyCompletedException(
                     String.format(
                             "Невозможно удалить лайк, т.к. пользователь ID №%s не ставил лайк фильму ID №%s",
                             userID, filmID)
             );
         }
-        likeStorage.addLike(filmID, userID);
+        //likeStorage.addLike(filmID, userID);
+        likeStorage.removeLike(filmID, userID);
         log.info("Пользователь ID № {} удалил лайк фильму ID № {}", userID, filmID);
     }
 

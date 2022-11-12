@@ -26,7 +26,7 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleOperationAlreadyCompletedException(final OperationAlreadyCompletedException e) {
         log.error("OperationAlreadyCompletedException: {}", e.getMessage());
         return new ErrorResponse(e.getMessage());
