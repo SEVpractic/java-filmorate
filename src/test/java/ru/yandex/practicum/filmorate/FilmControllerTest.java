@@ -108,14 +108,5 @@ class FilmControllerTest {
                 "не корректно формируется список count лучших фильмов");
         assertEquals(1, filmController.getPopularFilms(1).get(0).getId(),
                 "не корректно формируется список count лучших фильмов");
-
-        filmController.addLike(1, 1);
-        filmController.addLike(1, 2);
-        assertThrows(OperationAlreadyCompletedException.class, () -> filmController.addLike(1, 1),
-                "не выбрасывается исключение при постановке уже стоящего лайка");
-
-        filmController.removeLike(1, 1);
-        assertThrows(OperationAlreadyCompletedException.class, () -> filmController.removeLike(1, 1),
-                "не выбрасывается исключение при удалении не стоявшего лайка");
     }
 }

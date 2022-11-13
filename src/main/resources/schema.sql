@@ -39,13 +39,13 @@ CREATE TABLE IF NOT EXISTS genres_film(
     genre_id int REFERENCES genres (genre_id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS likes(
+    film_id int REFERENCES films ON DELETE CASCADE,
+    user_id int REFERENCES users ON DELETE CASCADE
+);
+
 INSERT INTO genres (name)
 VALUES ('Комедия'), ('Драма'), ('Мультфильм'), ('Триллер'), ('Документальный'), ('Боевик');
 
 INSERT INTO mpa (name)
 VALUES ('G'), ('PG'), ('PG-13'), ('R'), ('NC-17');
-
-CREATE TABLE IF NOT EXISTS likes(
-    film_id int REFERENCES films (film_id) ON DELETE CASCADE,
-    user_id int REFERENCES users (user_id) ON DELETE CASCADE
-);

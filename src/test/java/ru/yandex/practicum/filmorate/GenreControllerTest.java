@@ -6,7 +6,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.GenreController;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotExistException;
-import ru.yandex.practicum.filmorate.model.Pair;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -25,7 +24,7 @@ public class GenreControllerTest {
     void map_controller_correct() {
         assertEquals(6, genreController.getAllGenres().size(),
                 "Не корректно формируется списко жанров");
-        assertEquals(new Pair(3, "Мультфильм"), genreController.getGenre(3),
+        assertEquals(3, genreController.getGenre(3).getId(),
                 "Не корректно возвращается жанр по ID");
         assertThrows(EntityNotExistException.class, () -> genreController.getGenre(7),
                 "не выбрасывается исключение при попытке запросить несуществующий жанр");
