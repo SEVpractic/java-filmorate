@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.GenreController;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotExistException;
@@ -11,14 +11,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
-@AutoConfigureTestDatabase
-public class GenreControllerTest {
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+class GenreControllerTest extends BdClassTests{
     private final GenreController genreController;
-
-    @Autowired
-    public GenreControllerTest(GenreController genreController) {
-        this.genreController = genreController;
-    }
 
     @Test
     void map_controller_correct() {

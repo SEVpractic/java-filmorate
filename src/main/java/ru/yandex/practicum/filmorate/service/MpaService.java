@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,21 +11,19 @@ import java.util.List;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class MpaService {
     private final MpaDbStorage mpaDbStorage;
 
-    @Autowired
-    public MpaService(MpaDbStorage mpaDbStorage) {
-        this.mpaDbStorage = mpaDbStorage;
-    }
-
     public List<Pair> getAllMpa() {
+        List<Pair> mpa = mpaDbStorage.getAllMpa();
         log.info("возвращен перечень всех МПА");
-        return mpaDbStorage.getAllMpa();
+        return mpa;
     }
 
     public Pair getMpa(int mpaID) {
+        Pair mpa = mpaDbStorage.getMpa(mpaID);
         log.info("возвращен MPA с ID №{}", mpaID);
-        return mpaDbStorage.getMpa(mpaID);
+        return mpa;
     }
 }

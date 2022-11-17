@@ -1,7 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -9,16 +10,12 @@ import ru.yandex.practicum.filmorate.service.UserService;
 import javax.validation.Valid;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/users")
-@Slf4j
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserController {
     private final UserService userService;
-
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @GetMapping
     public List<User> getUsers() {
@@ -32,6 +29,7 @@ public class UserController {
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
+        user = fillEmptyUserName(user);
         return userService.createUser(user);
     }
 
@@ -61,5 +59,12 @@ public class UserController {
     public List<User> getCommonFriendsList(@PathVariable ("id") int userID,
                                            @PathVariable ("otherID") int anotherUserID) {
         return userService.getCommonFriends(userID, anotherUserID);
+    }
+
+    private User fillEmptyUserName(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            return user.toBuilder().name(user.getLogin()).build();
+        }
+        return user;
     }
 }

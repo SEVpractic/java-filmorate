@@ -1,85 +1,35 @@
 package ru.yandex.practicum.filmorate;
 
-import org.junit.jupiter.api.BeforeAll;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotExistException;
 import ru.yandex.practicum.filmorate.exceptions.OperationAlreadyCompletedException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Pair;
+import ru.yandex.practicum.filmorate.model.User;
 
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-import java.time.Duration;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
-@AutoConfigureTestDatabase
-class FilmControllerTest {
-    private static final LocalDate CORRECT_DATE = LocalDate.of(1990, 10, 3);
-    private static final LocalDate UN_CORRECT_DATE_RELISE = LocalDate.of(1000, 12, 3);
-    private static final Duration CORRECT_DURATION = Duration.ofMinutes(120);
-
-    private static Validator validator;
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+class FilmControllerTest extends BdClassTests{
     private final FilmController filmController;
-
-    @Autowired
-    public FilmControllerTest(FilmController filmController) {
-        this.filmController = filmController;
-    }
-
-    @BeforeAll
-    static void buildValidator() {
-        try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
-            validator = validatorFactory.usingContext().getValidator();
-        }
-    }
-
-    @Test
-    void film_validation_correct() {
-        Film film = new Film(null, "AAA BBB CCC", "description", CORRECT_DATE, CORRECT_DURATION, 10,
-                new ArrayList<Pair>(), new Pair(1, null));
-        assertEquals(0, validator.validate(film).size(), "отсеивается корректный фильм");
-
-        Film film1 = new Film(null, null, "description", CORRECT_DATE, CORRECT_DURATION, 10,
-                new ArrayList<Pair>(), new Pair(1, null));
-        assertNotEquals(0, validator.validate(film1).size(),
-                "не корректная валидация по пустому имени");
-
-        Film film2 = new Film(null, "AAA BBB CCC",
-                "KgIGmWllKP2ysubdsPcJelTnLe08qxRZ7fYQ6B5ISLOgJxnxw9qA4B7FMexiTDoqGGJenXN9D8KaGwgGg0onl" +
-                        "VrADNnHi9PUAV4XPJsafP09pTYy4HUTYoe3Ju2SDIYvZfGemqskAWuASKlNoKUTYva31VzYp7ukuvSJf8x7PsQ" +
-                        "ddfh7mzxcUmBPY7tZtrcD4IGh6Qe4GqyT0qBMAxPJf6voqGOweOkOMCSE406JsZ3FIRMsPa87Uhp",
-                CORRECT_DATE, CORRECT_DURATION, 10, new ArrayList<Pair>(), new Pair(1, null));
-        assertNotEquals(0, validator.validate(film2).size(),
-                "не корректная валидация при количестве символов более 200 в описании");
-
-        Film film3 = new Film(null, "AAA BBB CCC", "description", CORRECT_DATE, Duration.ZERO, 10,
-                new ArrayList<Pair>(), new Pair(1, null));
-        assertNotEquals(0, validator.validate(film3).size(),
-                "Некорректная валидация при длительности ноль");
-
-        Film film4 = new Film(null, "AAA BBB CCC", "description",
-                UN_CORRECT_DATE_RELISE, CORRECT_DURATION, 10, new ArrayList<Pair>(), new Pair(1, null));
-        assertNotEquals(0, validator.validate(film4).size(),
-                "Некорректная валидация неверной даты релиза");
-    }
+    private final UserController userController;
 
     @Test
     void film_controller_correct() {
-        Film film = new Film(null, "AAA", "description", CORRECT_DATE, CORRECT_DURATION, 10,
-                new ArrayList<Pair>(), new Pair(1, "G"));
-        Film film1 = new Film(null, "BBB", "description", CORRECT_DATE, CORRECT_DURATION, 10,
-                new ArrayList<Pair>(), new Pair(1, "G"));
+        Film film = Film.builder().name("AAA").description("description").releaseDate(CORRECT_DATE)
+                .duration(CORRECT_DURATION).rate(10).mpa(new Pair(1, "G")).genres(null).build();
+        Film film1 = Film.builder().name("BBB").description("description").releaseDate(CORRECT_DATE)
+                .duration(CORRECT_DURATION).rate(10).mpa(new Pair(1, "G")).genres(null).build();
         filmController.createFilm(film);
         filmController.createFilm(film1);
         film.setId(1);
@@ -88,19 +38,19 @@ class FilmControllerTest {
         List<Film> expectedFilms = new ArrayList<>();
         expectedFilms.add(film);
         expectedFilms.add(film1);
+        film = film.toBuilder().genres(new ArrayList<>()).build();
 
         assertEquals(expectedFilms, filmController.getFilms(), "не корректно создается фильм");
         assertEquals(film, filmController.getFilmByID(1), "не корректно возвращается фильм по ID");
 
-        Film film2 = new Film(1, "AAA", "description1", CORRECT_DATE, CORRECT_DURATION, 10,
-                new ArrayList<Pair>(), new Pair(1, null));
+        Film film2 = Film.builder().id(1).name("AAA1").description("description1").releaseDate(CORRECT_DATE)
+                .duration(CORRECT_DURATION).rate(10).mpa(new Pair(1, "G")).build();
         filmController.updateFilm(film2);
-
         assertEquals("description1", filmController.getFilms().get(0).getDescription(),
                 "обновление проходит не корректно");
 
-        Film film3 = new Film(1000, "AAA", "description1", CORRECT_DATE, CORRECT_DURATION, 10,
-                new ArrayList<Pair>(), new Pair(1, null));
+        Film film3 = Film.builder().id(1000).name("AAA").description("description").releaseDate(CORRECT_DATE)
+                .duration(CORRECT_DURATION).rate(10).mpa(new Pair(1, "G")).build();
         assertThrows(EntityNotExistException.class, ()-> filmController.updateFilm(film3),
                 "обновляется несуществующий фильм");
 
@@ -108,5 +58,21 @@ class FilmControllerTest {
                 "не корректно формируется список count лучших фильмов");
         assertEquals(1, filmController.getPopularFilms(1).get(0).getId(),
                 "не корректно формируется список count лучших фильмов");
+
+        User user = User.builder().email("Rick@mail.com").login("Rick")
+                .birthday(CORRECT_DATE).build();
+        User user1 = User.builder().email("Mortie@mail.com").login("Mortie")
+                .birthday(CORRECT_DATE).build();
+        userController.createUser(user);
+        userController.createUser(user1);
+
+        filmController.addLike(1, 1);
+        filmController.addLike(1, 2);
+        assertThrows(OperationAlreadyCompletedException.class, () -> filmController.addLike(1, 1),
+                "не выбрасывается исключение при постановке уже стоящего лайка");
+
+        filmController.removeLike(1, 1);
+        assertThrows(OperationAlreadyCompletedException.class, () -> filmController.removeLike(1, 1),
+                "не выбрасывается исключение при удалении не стоявшего лайка");
     }
 }

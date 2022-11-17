@@ -1,18 +1,16 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Objects;
 
 @Getter
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class Pair {
     private final int id;
     private final String name;
-
-    public Pair(int id, String name) {
-        this.id = id;
-        this.name = name;
-    }
 
     @Override
     public boolean equals(Object o) {

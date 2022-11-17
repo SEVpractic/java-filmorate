@@ -1,18 +1,16 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Objects;
 
 @Getter
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class Like {
     private final int filmId;
     private final int userId;
-
-    public Like(int filmId, int userId) {
-        this.filmId = filmId;
-        this.userId = userId;
-    }
 
     @Override
     public boolean equals(Object o) {

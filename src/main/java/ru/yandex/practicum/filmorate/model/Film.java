@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Builder;
 import lombok.Getter;
 import org.hibernate.validator.constraints.time.DurationMin;
 import ru.yandex.practicum.filmorate.util.DurationConverter;
@@ -11,9 +12,12 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Getter
+@Builder(toBuilder = true)
 public class Film {
     private Integer id;
     @NotNull
@@ -27,24 +31,13 @@ public class Film {
     @DurationMin(minutes = 1)
     @JsonSerialize(using = DurationConverter.class)
     private final Duration duration;
-    @NotNull
     private final int rate;
-    private final List<Pair> genres;
+    @Builder.Default
+    private final List<Pair> genres = new ArrayList<>();
+    @NotNull
     private final Pair mpa;
 
-    public Film(Integer id, String name, String description, LocalDate releaseDate,
-                Duration duration, int rate, List<Pair> genres, Pair mpa) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        this.rate = rate;
-        this.genres = genres;
-        this.mpa = mpa;
-    }
-
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 

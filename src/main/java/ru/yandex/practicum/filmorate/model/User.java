@@ -1,13 +1,14 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.Builder;
 import lombok.Getter;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Objects;
 
 @Getter
+@Builder(toBuilder = true)
 public class User {
     private Integer id;
     @NotNull
@@ -20,31 +21,17 @@ public class User {
     @NotNull
     @PastOrPresent
     private final LocalDate birthday;
-    private final List<Friend> friends;
-
-    public User(Integer id, String email, String login, String name, LocalDate birthday, List<Friend> friends) {
-        this.id = id;
-        this.email = email;
-        this.login = login;
-        this.name = name;
-        this.birthday = birthday;
-        this.friends = friends;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(getId(), user.getId()) && getEmail().equals(user.getEmail()) && getLogin().equals(user.getLogin()) && Objects.equals(getName(), user.getName()) && getBirthday().equals(user.getBirthday());
+        return Objects.equals(getId(), user.getId())
+                && Objects.equals(getEmail(), user.getEmail())
+                && Objects.equals(getLogin(), user.getLogin())
+                && Objects.equals(getName(), user.getName())
+                && Objects.equals(getBirthday(), user.getBirthday());
     }
 
     @Override
@@ -60,7 +47,6 @@ public class User {
                 ", login='" + login + '\'' +
                 ", name='" + name + '\'' +
                 ", birthday=" + birthday +
-                ", friends=" + friends +
                 '}';
     }
 }

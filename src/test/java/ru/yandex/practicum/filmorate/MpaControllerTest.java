@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.MpaController;
 import ru.yandex.practicum.filmorate.dao.MpaDbStorage;
@@ -13,16 +13,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
-@AutoConfigureTestDatabase
-public class MpaControllerTest {
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+class MpaControllerTest extends BdClassTests{
     private final MpaController mpaController;
     private final MpaDbStorage mpaDbStorage;
-
-    @Autowired
-    public MpaControllerTest(MpaController mpaController, MpaDbStorage mpaDbStorage) {
-        this.mpaController = mpaController;
-        this.mpaDbStorage = mpaDbStorage;
-    }
 
     @Test
     void mpa_controller_correct() {

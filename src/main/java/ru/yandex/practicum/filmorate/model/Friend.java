@@ -2,20 +2,18 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Objects;
 
 @Getter
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class Friend {
     @NonNull
     private final int friendId;
     @NonNull
     private final boolean isConfirmed;
-
-    public Friend(int friendId, boolean isConfirmed) {
-        this.friendId = friendId;
-        this.isConfirmed = isConfirmed;
-    }
 
     @Override
     public String toString() {
