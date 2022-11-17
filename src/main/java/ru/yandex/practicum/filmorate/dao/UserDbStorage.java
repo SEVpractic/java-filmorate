@@ -28,8 +28,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public List<User> getUsers() {
         String sqlQuery = "SELECT * FROM users";
-        List<User> users = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeUser(rs));
-        return users;
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeUser(rs));
     }
 
     @Override

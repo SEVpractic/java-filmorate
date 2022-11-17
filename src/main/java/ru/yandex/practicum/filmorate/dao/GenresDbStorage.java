@@ -69,7 +69,7 @@ public class GenresDbStorage implements GenreStorage {
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sqlQuery);
         HashMap<Integer, List<Pair>> genresByFilms;
         try {
-            genresByFilms = makeGenres(rs);//todo refactor
+            genresByFilms = makeGenres(rs);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -103,7 +103,7 @@ public class GenresDbStorage implements GenreStorage {
                 sqlQuery,
                 filmId
         );
-        log.info("удалены жанры фильма с ID №{}", filmId); //todo проверка на существование фильма?
+        log.info("удалены жанры фильма с ID №{}", filmId);
     }
 
     private Pair makeGenre(ResultSet rs) throws SQLException {

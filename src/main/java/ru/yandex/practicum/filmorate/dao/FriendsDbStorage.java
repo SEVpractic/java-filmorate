@@ -124,7 +124,7 @@ public class FriendsDbStorage implements FriendsStorage {
 
     private int makeStatus(List<Friend> friends, int userID, int friendID) {
         // 0 - нет запроса, 1 - запрос отправлен, 2 - имеется только входящий запрос, 3 - запросы подтверждены.
-        if (friends.size() == 0) return 0;
+        if (friends.isEmpty()) return 0;
         if (friends.size() == 2) return 3;
         if (friends.get(0).getFriendId() == friendID
                 && !friends.get(0).isConfirmed()) return 1;
