@@ -17,11 +17,11 @@ class GenreControllerTest extends BdClassTests{
 
     @Test
     void map_controller_correct() {
-        assertEquals(6, genreController.getAllGenres().size(),
+        assertEquals(6, genreController.getAll().size(),
                 "Не корректно формируется списко жанров");
-        assertEquals(3, genreController.getGenre(3).getId(),
+        assertEquals(3, genreController.get(3).getId(),
                 "Не корректно возвращается жанр по ID");
-        assertThrows(EntityNotExistException.class, () -> genreController.getGenre(7),
+        assertThrows(EntityNotExistException.class, () -> genreController.get(7),
                 "не выбрасывается исключение при попытке запросить несуществующий жанр");
     }
 }

@@ -11,18 +11,19 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
+
+import static ru.yandex.practicum.filmorate.util.EntityMaker.*;
 
 @Repository
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class FriendsDbStorage implements FriendsStorage {
+    private final String[] COLUMN_NAMES = new String[]{"user_id"};
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void addAsFriend(int userID, int friendID, boolean isConfirmed) {
+    public void add(int userID, int friendID, boolean isConfirmed) {
         String sqlQuery = "INSERT INTO friends VALUES (?, ?, ?)";
 
         try {
@@ -39,7 +40,7 @@ public class FriendsDbStorage implements FriendsStorage {
     }
 
     @Override
-    public void confirmFriend(int userID, int friendID) {
+    public void confirm(int userID, int friendID) {
         String sqlQuery = "UPDATE friends SET is_confirmed = ? WHERE user_id = ? AND friend_id = ?";
 
         jdbcTemplate.update(
@@ -51,7 +52,7 @@ public class FriendsDbStorage implements FriendsStorage {
     }
 
     @Override
-    public void deleteFriend(int userID, int friendID) {
+    public void delete(int userID, int friendID) {
         String sqlQuery = "DELETE FROM friends WHERE user_id = ? AND friend_id = ?";
 
         jdbcTemplate.update(con -> {
@@ -64,11 +65,11 @@ public class FriendsDbStorage implements FriendsStorage {
     }
 
     @Override
-    public int getFriendsStatus(int userID, int friendID) {
+    public int getStatus(int userID, int friendID) {
         String sqlQuery = "SELECT * FROM friends WHERE user_id IN (?, ?) AND friend_id IN (?, ?)";
 
         List<Friend> friends = jdbcTemplate.query((con -> {
-            PreparedStatement stmt = con.prepareStatement(sqlQuery, new String[]{"user_id"});
+            PreparedStatement stmt = con.prepareStatement(sqlQuery, COLUMN_NAMES);
             stmt.setInt(1, userID);
             stmt.setInt(2, friendID);
             stmt.setInt(3, friendID);
@@ -80,56 +81,29 @@ public class FriendsDbStorage implements FriendsStorage {
     }
 
     @Override
-    public List<User> getFriends(int userID) {
+    public List<User> getAll(int userID) {
         String sqlQuery = "SELECT * FROM users AS u " +
                 "INNER JOIN friends AS f ON u.user_id = f.friend_id " +
                 "WHERE f.user_id = ?";
         return jdbcTemplate.query(con -> {
-            PreparedStatement stmt = con.prepareStatement(sqlQuery, new String[]{"user_id"});
+            PreparedStatement stmt = con.prepareStatement(sqlQuery, COLUMN_NAMES);
             stmt.setInt(1, userID);
             return stmt;
         }, (rs, rowNum) -> makeUser(rs));
     }
 
     @Override
-    public List<User> getCommonFriends(int userID, int anotherUserID) {
+    public List<User> getCommon(int userID, int anotherUserID) {
         String sqlQuery = "SELECT * FROM users AS u WHERE u.user_id  IN (" +
                 "SELECT a.friend_id FROM friends AS a " +
                 "INNER JOIN friends AS b ON a.friend_id = b.friend_id " +
                 "WHERE a.user_id = ? AND b.user_id = ?)";
 
         return jdbcTemplate.query(con -> {
-            PreparedStatement stmt = con.prepareStatement(sqlQuery, new String[]{"user_id"});
+            PreparedStatement stmt = con.prepareStatement(sqlQuery, COLUMN_NAMES);
             stmt.setInt(1, userID);
             stmt.setInt(2, anotherUserID);
             return stmt;
         }, (rs, rowNum) -> makeUser(rs));
-    }
-
-    private User makeUser(ResultSet rs) throws SQLException {
-        return User.builder()
-                .id(rs.getInt("user_id"))
-                .email(rs.getString("email"))
-                .login(rs.getString("login"))
-                .name(rs.getString("name"))
-                .birthday(rs.getDate("birthday").toLocalDate())
-                .build();
-    }
-
-    private Friend makeFriend(ResultSet rs) throws SQLException {
-        return new Friend(
-                rs.getInt("friend_id"),
-                rs.getBoolean("is_confirmed"));
-    }
-
-    private int makeStatus(List<Friend> friends, int userID, int friendID) {
-        // 0 - нет запроса, 1 - запрос отправлен, 2 - имеется только входящий запрос, 3 - запросы подтверждены.
-        if (friends.isEmpty()) return 0;
-        if (friends.size() == 2) return 3;
-        if (friends.get(0).getFriendId() == friendID
-                && !friends.get(0).isConfirmed()) return 1;
-        if (friends.get(0).getFriendId() == userID
-                && !friends.get(0).isConfirmed()) return 2;
-        return 0;
     }
 }

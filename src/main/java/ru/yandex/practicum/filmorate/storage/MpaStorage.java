@@ -5,9 +5,9 @@ import ru.yandex.practicum.filmorate.model.Pair;
 import java.util.List;
 
 public interface MpaStorage {
-    Pair getMpa(int mpaId);
+    Pair get(int mpaId);
 
-    List<Pair> getAllMpa();
+    List<Pair> getAll();
 
-    Pair getMpaByFilmId(int filmId);
+    Pair getByFilmId(int filmId);
 }

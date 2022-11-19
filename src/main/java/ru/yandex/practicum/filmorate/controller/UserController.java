@@ -18,24 +18,24 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<User> getUsers() {
-        return userService.getUsers();
+    public List<User> get() {
+        return userService.getAll();
     }
 
     @GetMapping(path = "/{id}")
-    public User getUserByID(@PathVariable ("id") int userID) {
-        return userService.getUserByID(userID);
+    public User getByID(@PathVariable ("id") int userID) {
+        return userService.getByID(userID);
     }
 
     @PostMapping
-    public User createUser(@Valid @RequestBody User user) {
+    public User create(@Valid @RequestBody User user) {
         user = fillEmptyUserName(user);
-        return userService.createUser(user);
+        return userService.create(user);
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
-        return userService.updateUser(user);
+    public User update(@Valid @RequestBody User user) {
+        return userService.update(user);
     }
 
     @PutMapping(path = "/{id}/friends/{friendID}")
@@ -56,8 +56,8 @@ public class UserController {
     }
 
     @GetMapping(path = "/{id}/friends/common/{otherID}")
-    public List<User> getCommonFriendsList(@PathVariable ("id") int userID,
-                                           @PathVariable ("otherID") int anotherUserID) {
+    public List<User> getCommonFriends(@PathVariable ("id") int userID,
+                                       @PathVariable ("otherID") int anotherUserID) {
         return userService.getCommonFriends(userID, anotherUserID);
     }
 

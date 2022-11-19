@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -16,7 +15,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
+
+import static ru.yandex.practicum.filmorate.util.EntityMaker.makeGenre;
 
 @Repository
 @Slf4j
@@ -25,13 +25,13 @@ public class GenresDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public List<Pair> getAllGenres() {
+    public List<Pair> getAll() {
         String sqlQuery = "SELECT * FROM genres";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeGenre(rs));
     }
 
     @Override
-    public Pair getGenre(int genreID){
+    public Pair get(int genreID){
         String sqlQuery = "SELECT * FROM genres WHERE genre_id = ?";
         return jdbcTemplate.query(con -> {
                     PreparedStatement stmt = con.prepareStatement(sqlQuery, new String[]{"name"});
@@ -46,47 +46,48 @@ public class GenresDbStorage implements GenreStorage {
     }
 
     @Override
-    public List<Pair> getGenresByFilmID(int filmId) {
+    public Set<Pair> getByFilmID(int filmId) {
         String sqlQuery = "SELECT * FROM genres AS g INNER JOIN genres_film AS gf ON g.genre_id = gf.genre_id " +
                 "WHERE gf.film_id = ?";
 
-        return jdbcTemplate.query(con -> {
+        return new LinkedHashSet<>(jdbcTemplate.query(con -> {
             PreparedStatement stmt = con.prepareStatement(sqlQuery, new String[]{"film_id"});
             stmt.setInt(1, filmId);
             return stmt;
-        }, (rs, rowNum) -> makeGenre(rs))
-                .stream()
-                .sorted(Comparator.comparingInt(Pair::getId))
-                .collect(Collectors.toList());
+        }, (rs, rowNum) -> makeGenre(rs)));
     }
 
     @Override
     public List<Film> fillFilmsByGenres(List<Film> films) {
-        String sqlQuery = "SELECT gf.film_id, g.genre_id, g.genre_name " +
+        Map<Integer, Set<Pair>> genresByFilms;
+        String sqlQueryConditions = films.stream().map(f -> f.getId().toString())
+                .reduce((a, b) -> a + ", " + b)
+                .orElseThrow(() -> new EntityNotExistException("Список фильмов не обнаружен"));
+        String sqlQuery = String.format(
+                "SELECT gf.film_id, g.genre_id, g.genre_name " +
                 "FROM genres_film AS gf " +
-                "INNER JOIN genres AS g ON gf.genre_id = g.genre_id ";
+                "INNER JOIN genres AS g ON gf.genre_id = g.genre_id " +
+                "WHERE gf.film_id IN (%s)", sqlQueryConditions);
 
-        SqlRowSet rs = jdbcTemplate.queryForRowSet(sqlQuery);
-        HashMap<Integer, List<Pair>> genresByFilms;
-        try {
-            genresByFilms = makeGenres(rs);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        genresByFilms = jdbcTemplate.query(sqlQuery, this::makeGenres);
 
         return films.stream()
-                .map(g -> g = g.toBuilder().genres(genresByFilms.get(g.getId())).build())
-                .collect(Collectors.toList());
+                .map(g -> {
+                    assert genresByFilms != null;
+                    return g.toBuilder().genres(genresByFilms.get(g.getId())).build();
+                })
+                .toList();
     }
 
     @Override
-    public void createGenres(int filmId, List<Pair> genres) {
+    public void create(int filmId, Set<Pair> genres) {
+        List<Integer> id = genres.stream().map(Pair::getId).toList();
         String sqlQuery = "INSERT INTO genres_film (film_id, genre_id) VALUES (?, ?)";
         jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
                 ps.setInt(1, filmId);
-                ps.setInt(2, genres.get(i).getId());
+                ps.setInt(2, id.get(i));
             }
 
             @Override
@@ -97,7 +98,7 @@ public class GenresDbStorage implements GenreStorage {
     }
 
     @Override
-    public void removeGenres(int filmId) {
+    public void remove(int filmId) {
         String sqlQuery = "DELETE FROM genres_film WHERE film_id = ?";
         jdbcTemplate.update(
                 sqlQuery,
@@ -106,29 +107,18 @@ public class GenresDbStorage implements GenreStorage {
         log.info("удалены жанры фильма с ID №{}", filmId);
     }
 
-    private Pair makeGenre(ResultSet rs) throws SQLException {
-        return new Pair(
-                rs.getInt("genre_id"),
-                rs.getString("genre_name")
-        );
-    }
-
-    private HashMap<Integer, List<Pair>> makeGenres(SqlRowSet rs) throws SQLException {
-        HashMap<Integer, List<Pair>> genresByFilms = new HashMap<>();
+    private Map<Integer, Set<Pair>> makeGenres(ResultSet rs) throws SQLException {
+        Map<Integer, Set<Pair>> genresByFilms = new HashMap<>();
 
         while (rs.next()) {
-            int i = rs.getInt("film_id");
+            int filmId = rs.getInt("film_id");
             Pair genre = new Pair(
                     rs.getInt("genre_id"),
                     rs.getString("genre_name")
             );
 
-            if (genresByFilms.containsKey(i)) {
-                genresByFilms.get(i).add(genre);
-            } else {
-                genresByFilms.put(i, new ArrayList<>());
-                genresByFilms.get(i).add(genre);
-            }
+            final Set<Pair> genres = genresByFilms.computeIfAbsent(filmId, k -> new LinkedHashSet<>());
+            genres.add(genre);
         }
 
         return genresByFilms;

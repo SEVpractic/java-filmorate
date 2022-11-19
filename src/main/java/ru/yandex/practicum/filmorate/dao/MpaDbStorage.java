@@ -10,9 +10,9 @@ import ru.yandex.practicum.filmorate.model.Pair;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
+
+import static ru.yandex.practicum.filmorate.util.EntityMaker.makeMpa;
 
 @Repository
 @Slf4j
@@ -21,7 +21,7 @@ public class MpaDbStorage implements MpaStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Pair getMpa(int mpaId) {
+    public Pair get(int mpaId) {
         String sqlQuery = "SELECT * FROM mpa WHERE mpa_id = ?";
 
         return jdbcTemplate.query(con -> {
@@ -37,7 +37,7 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     @Override
-    public Pair getMpaByFilmId(int filmId) {
+    public Pair getByFilmId(int filmId) {
         String sqlQuery = "SELECT * FROM mpa AS m INNER JOIN films AS f ON m.mpa_id = f.mpa_id " +
                 "WHERE f.film_id = ?";
 
@@ -54,16 +54,9 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     @Override
-    public List<Pair> getAllMpa() {
+    public List<Pair> getAll() {
         String sqlQuery = "SELECT * FROM mpa";
 
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeMpa(rs));
-    }
-
-    private Pair makeMpa(ResultSet rs) throws SQLException {
-        return new Pair(
-                rs.getInt("mpa_id"),
-                rs.getString("mpa_name")
-        );
     }
 }

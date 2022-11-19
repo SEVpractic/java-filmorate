@@ -12,15 +12,12 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Getter
 @Builder(toBuilder = true)
 public class Film {
     private Integer id;
-    @NotNull
     @NotBlank
     private final String name;
     @Size(max = 200)
@@ -33,7 +30,7 @@ public class Film {
     private final Duration duration;
     private final int rate;
     @Builder.Default
-    private final List<Pair> genres = new ArrayList<>();
+    private final Set<Pair> genres = new LinkedHashSet<>();
     @NotNull
     private final Pair mpa;
 

@@ -4,17 +4,18 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Pair;
 
 import java.util.List;
+import java.util.Set;
 
 public interface GenreStorage {
-    List<Pair> getGenresByFilmID(int filmId);
+    Set<Pair> getByFilmID(int filmId);
 
-    List<Pair> getAllGenres();
+    List<Pair> getAll();
 
-    Pair getGenre(int genreID);
+    Pair get(int genreID);
 
     List<Film> fillFilmsByGenres(List<Film> films);
 
-    void removeGenres(int filmId);
+    void remove(int filmId);
 
-    void createGenres(int filmId, List<Pair> genres);
+    void create(int filmId, Set<Pair> genres);
 }

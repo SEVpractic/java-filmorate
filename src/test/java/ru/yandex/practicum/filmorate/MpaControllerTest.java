@@ -20,11 +20,11 @@ class MpaControllerTest extends BdClassTests{
 
     @Test
     void mpa_controller_correct() {
-        assertEquals(5, mpaController.getAllMpa().size(), "Не верно формируется список МПА");
-        assertEquals(new Pair(3, "PG-13"), mpaController.getMpa(3), "Не верное выводится МПА");
-        assertThrows(EntityNotExistException.class, () -> mpaController.getMpa(6),
+        assertEquals(5, mpaController.getAll().size(), "Не верно формируется список МПА");
+        assertEquals(new Pair(3, "PG-13"), mpaController.get(3), "Не верное выводится МПА");
+        assertThrows(EntityNotExistException.class, () -> mpaController.get(6),
                 "Не выбрасывается исключение при запросе МПА несуществующего МПА");
-        assertThrows(EntityNotExistException.class, () -> mpaDbStorage.getMpaByFilmId(100),
+        assertThrows(EntityNotExistException.class, () -> mpaDbStorage.getByFilmId(100),
                 "Не выбрасывается исключение при запросе МПА несуществующего фильма");
     }
 }

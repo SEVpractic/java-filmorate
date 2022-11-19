@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.MpaDbStorage;
 import ru.yandex.practicum.filmorate.model.Pair;
+import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
 import java.util.List;
 
@@ -13,16 +13,16 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class MpaService {
-    private final MpaDbStorage mpaDbStorage;
+    private final MpaStorage mpaStorage;
 
-    public List<Pair> getAllMpa() {
-        List<Pair> mpa = mpaDbStorage.getAllMpa();
+    public List<Pair> getAll() {
+        List<Pair> mpa = mpaStorage.getAll();
         log.info("возвращен перечень всех МПА");
         return mpa;
     }
 
-    public Pair getMpa(int mpaID) {
-        Pair mpa = mpaDbStorage.getMpa(mpaID);
+    public Pair get(int mpaID) {
+        Pair mpa = mpaStorage.get(mpaID);
         log.info("возвращен MPA с ID №{}", mpaID);
         return mpa;
     }

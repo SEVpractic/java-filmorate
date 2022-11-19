@@ -14,9 +14,9 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
+
+import static ru.yandex.practicum.filmorate.util.EntityMaker.makeUser;
 
 @Repository
 @Slf4j
@@ -26,13 +26,13 @@ public class UserDbStorage implements UserStorage {
 
 
     @Override
-    public List<User> getUsers() {
+    public List<User> get() {
         String sqlQuery = "SELECT * FROM users";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeUser(rs));
     }
 
     @Override
-    public User getUserByID(int userID) {
+    public User getByID(int userID) {
         String sqlQuery = "SELECT * FROM users AS u WHERE u.user_id = ?";
 
         return jdbcTemplate.query(con -> {
@@ -48,7 +48,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User createUser(User user) {
+    public User create(User user) {
         String sqlQuery = "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -60,13 +60,15 @@ public class UserDbStorage implements UserStorage {
             stmt.setDate(4, Date.valueOf(user.getBirthday()));
             return stmt;
         }, keyHolder);
-        if (keyHolder.getKey() == null) throw new CreationFailException("Не удалось создать пользователя");
+        if (keyHolder.getKey() == null) {
+            throw new CreationFailException("Не удалось создать пользователя");
+        }
 
         return user.toBuilder().id(keyHolder.getKey().intValue()).build();
     }
 
     @Override
-    public User updateUser(User user) {
+    public User update(User user) {
         String sqlQuery = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE user_id = ?";
 
         int updatedUserId = jdbcTemplate.update(
@@ -83,15 +85,5 @@ public class UserDbStorage implements UserStorage {
         }
 
         return user;
-    }
-
-    private User makeUser(ResultSet rs) throws SQLException {
-        return User.builder()
-                .id(rs.getInt("user_id"))
-                .email(rs.getString("email"))
-                .login(rs.getString("login"))
-                .name(rs.getString("name"))
-                .birthday(rs.getDate("birthday").toLocalDate())
-                .build();
     }
 }

@@ -9,15 +9,13 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.CreationFailException;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Pair;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.Duration;
 import java.util.List;
+
+import static ru.yandex.practicum.filmorate.util.EntityMaker.makeFilm;
 
 @Repository
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -25,13 +23,13 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public List<Film> getFilms() {
+    public List<Film> getAll() {
         String sqlQuery = "SELECT * FROM films AS f INNER JOIN mpa AS m ON f.mpa_id = m.mpa_id";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs));
     }
 
     @Override
-    public Film getFilmByID(int filmID) {
+    public Film getByID(int filmID) {
         String sqlQuery = "SELECT * FROM films AS f INNER JOIN mpa AS m ON f.mpa_id = m.mpa_id WHERE film_id = ?";
 
         return jdbcTemplate.query(con -> {
@@ -47,7 +45,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film createFilm(Film film) {
+    public Film create(Film film) {
         String sqlQuery = "INSERT INTO films (name, description, release_date, duration, rate, mpa_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -68,7 +66,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film updateFilm(Film film) {
+    public Film update(Film film) {
         String sqlQuery = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, rate = ?, " +
                 "mpa_id = ? WHERE film_id = ?";
 
@@ -91,7 +89,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getPopularFilms(int count) {
+    public List<Film> getPopular(int count) {
         String sqlQuery =
                 "SELECT f.film_id, f.name, f.description, f.release_date, " +
                         "f.duration, f.rate, f.mpa_id, COUNT(l.film_id), " +
@@ -108,17 +106,5 @@ public class FilmDbStorage implements FilmStorage {
                     stmt.setInt(1, count);
                     return stmt;
                 }, (rs, rowNum) -> makeFilm(rs));
-    }
-
-    private Film makeFilm(ResultSet rs) throws SQLException {
-        return Film.builder()
-                .id(rs.getInt("film_id"))
-                .name(rs.getString("name"))
-                .description(rs.getString("description"))
-                .releaseDate(rs.getDate("release_date").toLocalDate())
-                .duration(Duration.ofSeconds(rs.getInt("duration")))
-                .rate(rs.getInt("rate"))
-                .mpa(new Pair(rs.getInt("mpa_id"), rs.getString("mpa_name")))
-                .build();
     }
 }

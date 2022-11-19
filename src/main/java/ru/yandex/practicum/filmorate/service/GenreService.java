@@ -15,14 +15,14 @@ import java.util.List;
 public class GenreService {
     private final GenreStorage genreStorage;
 
-    public List<Pair> getAllGenres() {
-        List<Pair> genres = genreStorage.getAllGenres();
+    public List<Pair> getAll() {
+        List<Pair> genres = genreStorage.getAll();
         log.info("возвращен перечень всех жанров");
         return genres;
     }
 
-    public Pair getGenre(int genreID) {
-        Pair genre = genreStorage.getGenre(genreID);
+    public Pair get(int genreID) {
+        Pair genre = genreStorage.get(genreID);
         log.info("возвращен жанр с ID №{}", genreID);
         return genre;
     }

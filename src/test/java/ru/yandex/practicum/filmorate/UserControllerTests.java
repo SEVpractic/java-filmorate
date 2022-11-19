@@ -26,8 +26,8 @@ class UserControllerTests extends BdClassTests{
 		User user1 = User.builder().email("bbb@mail.com").login("login0")
 				.birthday(CORRECT_DATE).build();
 
-		userController.createUser(user);
-		userController.createUser(user1);
+		userController.create(user);
+		userController.create(user1);
 		user = user.toBuilder().id(1).build();
 		user1 = user1.toBuilder().id(2).build();
 		user1 = user1.toBuilder().name(user1.getLogin()).build();
@@ -36,30 +36,30 @@ class UserControllerTests extends BdClassTests{
 		expectedUsers.add(user);
 		expectedUsers.add(user1);
 
-		assertEquals(expectedUsers, userController.getUsers(),
+		assertEquals(expectedUsers, userController.get(),
 				"не корректно создается пользователь");
-		assertEquals(expectedUsers.get(1), userController.getUsers().get(1),
+		assertEquals(expectedUsers.get(1), userController.get().get(1),
 				"пустое имя пользователя не меняется на логин");
 
 		User user2 = User.builder().id(1).email("aaa@mail12.com").login("login1").name("Mortie")
 				.birthday(CORRECT_DATE).build();
-		userController.updateUser(user2);
+		userController.update(user2);
 
 
-		assertEquals("login1", userController.getUsers().get(0).getLogin(),
+		assertEquals("login1", userController.get().get(0).getLogin(),
 				"обновление проходит не корректно");
 
 		User user3 = User.builder().email("aaa@mail12.com").login("login12").name("Mortie")
 				.birthday(CORRECT_DATE).build();
-		assertThrows(EntityNotExistException.class, () -> userController.updateUser(user3),
+		assertThrows(EntityNotExistException.class, () -> userController.update(user3),
 				"обновляется несуществующий юзер");
 
 		User user4 = User.builder().email("aaa@mail1.com").login("login123").name("Mortie")
 				.birthday(CORRECT_DATE).build();
-		userController.createUser(user4);
+		userController.create(user4);
 		userController.addAsFriend(1, 2);
 
-		assertEquals(List.of(), userController.getCommonFriendsList(1, 2),
+		assertEquals(List.of(), userController.getCommonFriends(1, 2),
 				"не верно формируется список общих друзей без общих друзей");
 		assertThrows(OperationAlreadyCompletedException.class, () -> userController.addAsFriend(1, 2),
 				"не формируется исключение при добавлении в друзья уже друзей");
@@ -70,11 +70,11 @@ class UserControllerTests extends BdClassTests{
 		assertEquals(2, userController.getFriends(1).get(0).getId(),
 				"не корректно добавляются друзья");
 		userController.addAsFriend(2, 1);
-		assertEquals(List.of(userController.getUserByID(3), userController.getUserByID(1)),
+		assertEquals(List.of(userController.getByID(3), userController.getByID(1)),
 				userController.getFriends(2), "не корректно выводится список друзей");
 		userController.addAsFriend(3, 2);
-		assertEquals(List.of(userController.getUserByID(2)),
-				userController.getCommonFriendsList(1, 3),
+		assertEquals(List.of(userController.getByID(2)),
+				userController.getCommonFriends(1, 3),
 				"не корректно формируется список общих друзей");
 
 		userController.removeFromFriends(1, 2);

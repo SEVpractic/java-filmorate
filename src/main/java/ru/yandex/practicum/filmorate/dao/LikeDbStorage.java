@@ -9,8 +9,8 @@ import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+
+import static ru.yandex.practicum.filmorate.util.EntityMaker.makeLike;
 
 @Repository
 @Slf4j
@@ -19,7 +19,7 @@ public class LikeDbStorage implements LikeStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void addLike(int filmID, int userID) {
+    public void add(int filmID, int userID) {
         String sqlQuery = "INSERT INTO likes VALUES (?, ?)";
         jdbcTemplate.update(
                 sqlQuery,
@@ -30,7 +30,7 @@ public class LikeDbStorage implements LikeStorage {
     }
 
     @Override
-    public void removeLike(int filmID, int userID) {
+    public void remove(int filmID, int userID) {
         String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
         jdbcTemplate.update(
                 sqlQuery,
@@ -40,7 +40,7 @@ public class LikeDbStorage implements LikeStorage {
         log.info("удален лайк пользователя с ID №{} фильму №{}", userID, filmID);
     }
 
-    public Like getLike(int filmID, int userID) {
+    public Like get(int filmID, int userID) {
         String sqlQuery = "SELECT * FROM likes WHERE film_id = ? AND user_id = ?";
         return jdbcTemplate.query(con -> {
             PreparedStatement stmt = con.prepareStatement(sqlQuery, new String[]{"film_id"});
@@ -51,12 +51,5 @@ public class LikeDbStorage implements LikeStorage {
                 .stream()
                 .findFirst()
                 .orElse(null);
-    }
-
-    private Like makeLike(ResultSet rs) throws SQLException {
-        return new Like(
-                rs.getInt("film_id"),
-                rs.getInt("user_id")
-        );
     }
 }
