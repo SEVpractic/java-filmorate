@@ -46,38 +46,48 @@ public class UserService {
     public void addAsFriend(int userID, int friendID) {
         switch (friendsStorage.getStatus(userID, friendID)) {
             // 0 - нет запроса, 1 - запрос отправлен, 2 - имеется только входящий запрос, 3 - запросы подтверждены.
-            case 0 -> friendsStorage.add(userID, friendID, false);
-            case 1 -> throw new OperationAlreadyCompletedException(
+            case 0:
+                friendsStorage.add(userID, friendID, false);
+                break;
+            case 1:
+                throw new OperationAlreadyCompletedException(
                     String.format("Невозможно выполнить. Пользователи с ID № %s уже " +
                             "отправил запрос пользователю с ID №%s", userID, friendID)
-            );
-            case 2 -> {
+                );
+            case 2:
                 friendsStorage.add(userID, friendID, true);
                 friendsStorage.confirm(userID, friendID);
-            }
-            case 3 -> throw new OperationAlreadyCompletedException(
+                break;
+            case 3:
+                throw new OperationAlreadyCompletedException(
                     String.format("Невозможно выполнить. " +
                             "Пользователи с ID № %s и %s уже друзья", userID, friendID)
-            );
-            default -> throw new EntityNotExistException("Указанные пользователи не существуют");
+                );
+            default:
+                throw new EntityNotExistException("Указанные пользователи не существуют");
         }
     }
 
     public void removeFromFriends(int userID, int friendID) {
         switch (friendsStorage.getStatus(userID, friendID)) {
             // 0 - нет запроса, 1 - запрос отправлен, 2 - имеется только входящий запрос, 3 - запросы подтверждены.
-            case 0 -> throw new OperationAlreadyCompletedException(
+            case 0:
+                throw new OperationAlreadyCompletedException(
                     String.format("Невозможно выполнить. Пользователи с ID № %s и %s не друзья", userID, friendID)
-            );
-            case 1 -> friendsStorage.delete(userID, friendID);
-            case 2 -> throw new OperationAlreadyCompletedException(
+                );
+            case 1:
+                friendsStorage.delete(userID, friendID);
+                break;
+            case 2:
+                throw new OperationAlreadyCompletedException(
                     String.format("Невозможно выполнить. Пользователи с ID № %s и %s не друзья", userID, friendID)
-            );
-            case 3 -> {
+                );
+            case 3:
                 friendsStorage.delete(userID, friendID);
                 friendsStorage.delete(friendID, userID);
-            }
-            default -> throw new EntityNotExistException("Указанные пользователи не существуют");
+                break;
+            default:
+                throw new EntityNotExistException("Указанные пользователи не существуют");
         }
     }
 

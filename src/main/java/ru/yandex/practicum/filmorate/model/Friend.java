@@ -10,9 +10,7 @@ import java.util.Objects;
 @Getter
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class Friend {
-    @NonNull
     private final int friendId;
-    @NonNull
     private final boolean isConfirmed;
 
     @Override

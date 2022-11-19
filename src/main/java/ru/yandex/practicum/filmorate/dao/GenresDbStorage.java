@@ -15,6 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.util.EntityMaker.makeGenre;
 
@@ -76,12 +77,12 @@ public class GenresDbStorage implements GenreStorage {
                     assert genresByFilms != null;
                     return g.toBuilder().genres(genresByFilms.get(g.getId())).build();
                 })
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
     public void create(int filmId, Set<Pair> genres) {
-        List<Integer> id = genres.stream().map(Pair::getId).toList();
+        List<Integer> id = genres.stream().map(Pair::getId).collect(Collectors.toList());
         String sqlQuery = "INSERT INTO genres_film (film_id, genre_id) VALUES (?, ?)";
         jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() {
             @Override
