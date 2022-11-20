@@ -10,12 +10,11 @@ import ru.yandex.practicum.filmorate.exceptions.CreationFailException;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.util.makers.FilmMapper;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.List;
-
-import static ru.yandex.practicum.filmorate.util.EntityMaker.makeFilm;
 
 @Repository
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -25,7 +24,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getAll() {
         String sqlQuery = "SELECT * FROM films AS f INNER JOIN mpa AS m ON f.mpa_id = m.mpa_id";
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs));
+        return jdbcTemplate.query(sqlQuery, new FilmMapper());
     }
 
     @Override
@@ -36,7 +35,7 @@ public class FilmDbStorage implements FilmStorage {
                     PreparedStatement stmt = con.prepareStatement(sqlQuery, new String[]{"film_id"});
                     stmt.setInt(1, filmID);
                     return stmt;
-                    }, (rs, rowNum) -> makeFilm(rs))
+                    }, new FilmMapper())
                         .stream()
                         .findFirst()
                         .orElseThrow(() -> new EntityNotExistException(
@@ -105,6 +104,6 @@ public class FilmDbStorage implements FilmStorage {
                     PreparedStatement stmt = con.prepareStatement(sqlQuery, new String[]{"count"});
                     stmt.setInt(1, count);
                     return stmt;
-                }, (rs, rowNum) -> makeFilm(rs));
+                }, new FilmMapper());
     }
 }

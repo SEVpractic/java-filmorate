@@ -7,10 +7,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
+import ru.yandex.practicum.filmorate.util.makers.LIkeMapper;
 
 import java.sql.PreparedStatement;
-
-import static ru.yandex.practicum.filmorate.util.EntityMaker.makeLike;
 
 @Repository
 @Slf4j
@@ -47,7 +46,7 @@ public class LikeDbStorage implements LikeStorage {
             stmt.setInt(1, filmID);
             stmt.setInt(2, userID);
             return stmt;
-        }, (rs, rowNum) -> makeLike(rs))
+        }, new LIkeMapper())
                 .stream()
                 .findFirst()
                 .orElse(null);

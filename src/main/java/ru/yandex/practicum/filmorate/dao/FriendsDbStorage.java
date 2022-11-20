@@ -9,11 +9,11 @@ import ru.yandex.practicum.filmorate.exceptions.EntityNotExistException;
 import ru.yandex.practicum.filmorate.model.Friend;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FriendsStorage;
+import ru.yandex.practicum.filmorate.util.makers.FriendMapper;
+import ru.yandex.practicum.filmorate.util.makers.UserMapper;
 
 import java.sql.PreparedStatement;
 import java.util.List;
-
-import static ru.yandex.practicum.filmorate.util.EntityMaker.*;
 
 @Repository
 @Slf4j
@@ -75,7 +75,7 @@ public class FriendsDbStorage implements FriendsStorage {
             stmt.setInt(3, friendID);
             stmt.setInt(4, userID);
             return stmt;
-        }), (rs, rowNum) -> makeFriend(rs));
+        }), new FriendMapper());
 
         return makeStatus(friends, userID, friendID);
     }
@@ -89,7 +89,7 @@ public class FriendsDbStorage implements FriendsStorage {
             PreparedStatement stmt = con.prepareStatement(sqlQuery, COLUMN_NAMES);
             stmt.setInt(1, userID);
             return stmt;
-        }, (rs, rowNum) -> makeUser(rs));
+        }, new UserMapper());
     }
 
     @Override
@@ -104,6 +104,17 @@ public class FriendsDbStorage implements FriendsStorage {
             stmt.setInt(1, userID);
             stmt.setInt(2, anotherUserID);
             return stmt;
-        }, (rs, rowNum) -> makeUser(rs));
+        }, new UserMapper());
+    }
+
+    private int makeStatus(List<Friend> friends, int userID, int friendID) {
+        // 0 - нет запроса, 1 - запрос отправлен, 2 - имеется только входящий запрос, 3 - запросы подтверждены.
+        if (friends.isEmpty()) return 0;
+        if (friends.size() == 2) return 3;
+        if (friends.get(0).getFriendId() == friendID
+                && !friends.get(0).isConfirmed()) return 1;
+        if (friends.get(0).getFriendId() == userID
+                && !friends.get(0).isConfirmed()) return 2;
+        return 0;
     }
 }

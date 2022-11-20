@@ -11,12 +11,11 @@ import ru.yandex.practicum.filmorate.exceptions.CreationFailException;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotExistException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.util.makers.UserMapper;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.List;
-
-import static ru.yandex.practicum.filmorate.util.EntityMaker.makeUser;
 
 @Repository
 @Slf4j
@@ -24,11 +23,10 @@ import static ru.yandex.practicum.filmorate.util.EntityMaker.makeUser;
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 
-
     @Override
     public List<User> get() {
         String sqlQuery = "SELECT * FROM users";
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeUser(rs));
+        return jdbcTemplate.query(sqlQuery, new UserMapper());
     }
 
     @Override
@@ -39,7 +37,7 @@ public class UserDbStorage implements UserStorage {
                     PreparedStatement stmt = con.prepareStatement(sqlQuery, new String[]{"user_id"});
                     stmt.setInt(1, userID);
                     return stmt;
-                    }, (rs, rowNum) -> makeUser(rs))
+                    }, new UserMapper())
                         .stream()
                         .findFirst()
                         .orElseThrow(() -> new EntityNotExistException(

@@ -10,14 +10,13 @@ import ru.yandex.practicum.filmorate.exceptions.EntityNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Pair;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
+import ru.yandex.practicum.filmorate.util.makers.GenreMapper;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static ru.yandex.practicum.filmorate.util.EntityMaker.makeGenre;
 
 @Repository
 @Slf4j
@@ -28,7 +27,7 @@ public class GenresDbStorage implements GenreStorage {
     @Override
     public List<Pair> getAll() {
         String sqlQuery = "SELECT * FROM genres";
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeGenre(rs));
+        return jdbcTemplate.query(sqlQuery, new GenreMapper());
     }
 
     @Override
@@ -38,7 +37,7 @@ public class GenresDbStorage implements GenreStorage {
                     PreparedStatement stmt = con.prepareStatement(sqlQuery, new String[]{"name"});
                     stmt.setInt(1, genreID);
                     return stmt;
-                }, (rs, rowNum) -> makeGenre(rs))
+                }, new GenreMapper())
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new EntityNotExistException(
@@ -55,7 +54,7 @@ public class GenresDbStorage implements GenreStorage {
             PreparedStatement stmt = con.prepareStatement(sqlQuery, new String[]{"film_id"});
             stmt.setInt(1, filmId);
             return stmt;
-        }, (rs, rowNum) -> makeGenre(rs)));
+        }, new GenreMapper()));
     }
 
     @Override
